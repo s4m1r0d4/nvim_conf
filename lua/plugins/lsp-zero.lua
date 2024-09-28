@@ -16,7 +16,10 @@ return {
         'hrsh7th/nvim-cmp',
         event = 'InsertEnter',
         dependencies = {
-            { 'L3MON4D3/LuaSnip' },
+            {
+                'L3MON4D3/LuaSnip',
+                build = "make install_jsregexp"
+            },
             { 'rafamadriz/friendly-snippets' },
             { 'hrsh7th/cmp-path' },
         },
@@ -86,7 +89,7 @@ return {
         },
         config = function()
             local lsp_zero = require('lsp-zero')
-            require("lspconfig.ui.windows").default_options.border = "rounder"
+            require("lspconfig.ui.windows").default_options.border = "rounded"
 
             -- lsp_attach is where you enable features that only work
             -- if there is a language server active in the file
@@ -111,10 +114,16 @@ return {
             end
 
             lsp_zero.extend_lspconfig({
-                sign_text = true,
                 lsp_attach = lsp_attach,
                 capabilities = require('cmp_nvim_lsp').default_capabilities(),
                 float_border = 'rounded',
+
+                sign_text = {
+                    error = '✘',
+                    warn = '▲',
+                    hint = '⚑',
+                    info = '»',
+                },
             })
 
             require('mason-lspconfig').setup({
