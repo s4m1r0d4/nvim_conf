@@ -41,3 +41,5 @@ vim.g.netrw_winsize = 25
 
 vim.o.background = "dark" -- or "light" for light mode
 vim.cmd([[colorscheme gruvbox]])
+
+require('lspconfig.ui.windows').default_options.border = 'single'

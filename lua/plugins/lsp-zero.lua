@@ -17,6 +17,7 @@ return {
         event = 'InsertEnter',
         dependencies = {
             { 'L3MON4D3/LuaSnip' },
+            { 'rafamadriz/friendly-snippets' },
             { 'hrsh7th/cmp-path' },
         },
         config = function()
@@ -25,8 +26,8 @@ return {
 
             cmp.setup({
                 window = {
-                    completion = cmp.config.window.bordered(),
-                    documentation = cmp.config.window.bordered(),
+                    completion = cmp.config.window.bordered("rounded"),
+                    documentation = cmp.config.window.bordered("rounded"),
                 },
                 sources = {
                     { name = 'nvim_lsp' },
@@ -49,6 +50,7 @@ return {
                     }
                 },
                 mapping = cmp.mapping.preset.insert({
+                    ['<C-y>'] = cmp.mapping.confirm({ select = true }),
                     ['<C-Space>'] = cmp.mapping.complete(),
                     ['<C-u>'] = cmp.mapping.scroll_docs(-4),
                     ['<C-d>'] = cmp.mapping.scroll_docs(4),
@@ -66,6 +68,9 @@ return {
                     end,
                 },
             })
+
+
+            require('luasnip.loaders.from_vscode').lazy_load()
         end
     },
 
@@ -81,6 +86,7 @@ return {
         },
         config = function()
             local lsp_zero = require('lsp-zero')
+            require("lspconfig.ui.windows").default_options.border = "rounder"
 
             -- lsp_attach is where you enable features that only work
             -- if there is a language server active in the file
@@ -97,12 +103,18 @@ return {
                 vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
                 vim.keymap.set({ 'n', 'x' }, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
                 vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+
+                -- Diagnostics
+                vim.keymap.set("n", "<leader>vd", '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
+                vim.keymap.set("n", "[d", '<cmd>lua vim.diagnostic.goto_next()<cr>', opts)
+                vim.keymap.set("n", "]d", '<cmd>lua vim.diagnostic.goto_prev()<cr>', opts)
             end
 
             lsp_zero.extend_lspconfig({
                 sign_text = true,
                 lsp_attach = lsp_attach,
-                capabilities = require('cmp_nvim_lsp').default_capabilities()
+                capabilities = require('cmp_nvim_lsp').default_capabilities(),
+                float_border = 'rounded',
             })
 
             require('mason-lspconfig').setup({
