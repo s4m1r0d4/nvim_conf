@@ -21,6 +21,7 @@ return {
                 build = "make install_jsregexp"
             },
             { 'rafamadriz/friendly-snippets' },
+            { 'saadparwaiz1/cmp_luasnip' },
             { 'hrsh7th/cmp-path' },
         },
         config = function()
