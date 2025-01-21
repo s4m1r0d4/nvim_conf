@@ -110,8 +110,8 @@ return {
 
                 -- Diagnostics
                 vim.keymap.set("n", "<leader>vd", '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
-                vim.keymap.set("n", "[d", '<cmd>lua vim.diagnostic.goto_next()<cr>', opts)
-                vim.keymap.set("n", "]d", '<cmd>lua vim.diagnostic.goto_prev()<cr>', opts)
+                vim.keymap.set("n", "]d", '<cmd>lua vim.diagnostic.goto_next()<cr>', opts)
+                vim.keymap.set("n", "[d", '<cmd>lua vim.diagnostic.goto_prev()<cr>', opts)
             end
 
             lsp_zero.extend_lspconfig({

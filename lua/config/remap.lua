@@ -1,4 +1,6 @@
-vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
+-- netrw sucks
+-- vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
+vim.keymap.set('n', '<leader>pv', ":NERDTree %<CR>")
 
 -- -- Paste in new line above with format
 -- vim.keymap.set("v", "<leader>pu", "y :pu!<CR>V=")
