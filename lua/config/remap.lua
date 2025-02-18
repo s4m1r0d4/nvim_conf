@@ -1,6 +1,5 @@
 -- netrw sucks
--- vim.keymap.set('n', '<leader>pv', vim.cmd.Ex)
-vim.keymap.set('n', '<leader>pv', ":NERDTree %<CR>")
+vim.keymap.set('n', '<leader>pv', ":NERDTreeFind<CR>")
 
 -- -- Paste in new line above with format
 -- vim.keymap.set("v", "<leader>pu", "y :pu!<CR>V=")
@@ -23,24 +22,26 @@ vim.keymap.set("n", "N", "Nzzzv")
 -- vim.keymap.set("x", "<leader>p", [["_dP]])
 
 -- next greatest remap ever : asbjornHaland (Yank into system clipboard)
+
 vim.keymap.set({ "n", "v" }, "<leader>y", [["+y]])
 vim.keymap.set("n", "<leader>Y", [["+Y]])
 
 -- Paste system clipboard
 vim.keymap.set("n", "<leader>sp", [["+p]])
 
--- Select all
+-- Select everything
 vim.keymap.set("n", "<leader>e", [[ggVG]])
 
--- Select all and paste to system clipboard
+-- Select everything and paste to system clipboard
 vim.keymap.set("n", "<leader>E", [[ggVG"+y"]])
 
 -- search and replace word under cursor
 vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gIc<Left><Left><Left><Left>]])
 
 -- Navigate tabs with tab key
-vim.keymap.set('n', '<TAB>', 'gt')
-vim.keymap.set('n', '<S-TAB>', 'gT')
+vim.keymap.set("n", "<TAB>",   "gt") -- next tab
+vim.keymap.set("n", "<S-TAB>", "gT") -- previous tab
+
 
 -- Create new tab
 vim.keymap.set('n', '<leader><TAB>', ':tabnew<CR>')
@@ -49,9 +50,6 @@ vim.keymap.set('n', '<leader>T', ':tabnew<CR>:terminal<CR><C-w>s:terminal<CR>')
 
 -- Proyecto
 -- vim.keymap.set('n', '<leader>x', ':tabnew<CR>:terminal<CR>i cd Server && go run .<CR><C-\\><C-n>:split<CR>:term<CR>i cd DomesticaWeb && ng s<CR>')
-
--- Select all
-vim.keymap.set('n', '<TAB>', 'gt')
 
 vim.keymap.set('t', "<Esc>", "<C-\\><C-n>")
 vim.keymap.set('t', "<A-h>", "<C-\\><C-N><C-w>h")
@@ -63,11 +61,15 @@ vim.keymap.set("i", "<A-h>", "<C-\\><C-N><C-w>h")
 vim.keymap.set("i", "<A-j>", "<C-\\><C-N><C-w>j")
 vim.keymap.set("i", "<A-k>", "<C-\\><C-N><C-w>k")
 vim.keymap.set("i", "<A-l>", "<C-\\><C-N><C-w>l")
+
 vim.keymap.set("n", "<A-h>", "<C-w>h")
 vim.keymap.set("n", "<A-j>", "<C-w>j")
 vim.keymap.set("n", "<A-k>", "<C-w>k")
 vim.keymap.set("n", "<A-l>", "<C-w>l")
 
+
+-- Duplicate current line bellow moving the cursor to the row bellow and same collumn
+vim.keymap.set({"i", "n"}, "<A-,>", ":t.<CR>")
 
 ---- Plugin Keymaps ----
 

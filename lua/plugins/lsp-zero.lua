@@ -45,8 +45,8 @@ return {
                     },
                     {
                         name = 'buffer',
-                        keyword_length = 5,
-                        -- group_index = 2
+                        -- keyword_length = 5,
+                        group_index = 2
                     },
                     {
                         name = "copilot",
@@ -110,8 +110,8 @@ return {
 
                 -- Diagnostics
                 vim.keymap.set("n", "<leader>vd", '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
-                vim.keymap.set("n", "]d", '<cmd>lua vim.diagnostic.goto_next()<cr>', opts)
                 vim.keymap.set("n", "[d", '<cmd>lua vim.diagnostic.goto_prev()<cr>', opts)
+                vim.keymap.set("n", "]d", '<cmd>lua vim.diagnostic.goto_next()<cr>', opts)
             end
 
             lsp_zero.extend_lspconfig({
@@ -159,6 +159,31 @@ return {
                             single_file_support = true
                         }
                     end,
+                    gopls = function()
+                        require 'lspconfig'.gopls.setup {
+                            settings = {
+                                gopls = {
+                                    env = {
+                                        GOFLAGS = "-tags=windows,linux,unittest"
+                                    }
+                                },
+                            },
+                            on_attach = function(client, bufnr)
+                                print('golang mode')
+                                -- Golang likes tabs...
+                                vim.opt.expandtab = false
+                            end
+                        }
+                    end,
+                    dcm = function ()
+                        require 'lspconfig'.gopls.setup {
+                            on_attach = function(client, bufnr)
+                                vim.opt.tabstop = 2
+                                vim.opt.softtabstop = 2
+                                vim.opt.shiftwidth = 2
+                            end
+                        }
+                    end
                 }
             })
         end
