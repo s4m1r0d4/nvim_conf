@@ -175,7 +175,7 @@ return {
                             end
                         }
                     end,
-                    dcm = function ()
+                    dcmls = function ()
                         require 'lspconfig'.gopls.setup {
                             on_attach = function(client, bufnr)
                                 vim.opt.tabstop = 2
