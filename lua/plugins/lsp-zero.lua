@@ -28,6 +28,7 @@ return {
             local cmp = require('cmp')
             local luasnip = require('luasnip')
 
+            -- angular template files '*.html' are interpreted as 'htmlangular' instead of 'html'
             require("luasnip").filetype_extend("htmlangular", { "html" })
             require("luasnip/loaders/from_vscode").load({include = {"html"}})
             require('luasnip.loaders.from_vscode').lazy_load()

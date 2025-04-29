@@ -71,6 +71,9 @@ vim.keymap.set("n", "<A-l>", "<C-w>l")
 -- Duplicate current line bellow moving the cursor to the row bellow and same collumn
 vim.keymap.set({"i", "n"}, "<A-,>", ":t.<CR>")
 
+-- Vim easy align
+vim.keymap.set({"n", "x"}, '<leader>l', ":EasyAlign ")
+
 ---- Plugin Keymaps ----
 
 -- Telescope keymaps
