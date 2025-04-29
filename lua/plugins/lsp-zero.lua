@@ -211,6 +211,15 @@ return {
                             end
                         }
                     end,
+                    dcmls = function ()
+                        require 'lspconfig'.gopls.setup {
+                            on_attach = function(client, bufnr)
+                                vim.opt.tabstop = 2
+                                vim.opt.softtabstop = 2
+                                vim.opt.shiftwidth = 2
+                            end
+                        }
+                    end
                 }
             })
         end
