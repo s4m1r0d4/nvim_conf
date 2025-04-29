@@ -18,15 +18,19 @@ return {
         dependencies = {
             {
                 'L3MON4D3/LuaSnip',
-                build = "make install_jsregexp"
+                build = "make install_jsregexp",
+                dependencies = { 'rafamadriz/friendly-snippets' },
             },
-            { 'rafamadriz/friendly-snippets' },
             { 'saadparwaiz1/cmp_luasnip' },
             { 'hrsh7th/cmp-path' },
         },
         config = function()
             local cmp = require('cmp')
             local luasnip = require('luasnip')
+
+            require("luasnip").filetype_extend("htmlangular", { "html" })
+            require("luasnip/loaders/from_vscode").load({include = {"html"}})
+            require('luasnip.loaders.from_vscode').lazy_load()
 
             cmp.setup({
                 window = {
@@ -46,7 +50,7 @@ return {
                     {
                         name = 'buffer',
                         -- keyword_length = 5,
-                        group_index = 2
+                        -- group_index = 2
                     },
                     {
                         name = "copilot",
@@ -68,13 +72,17 @@ return {
                 }),
                 snippet = {
                     expand = function(args)
-                        vim.snippet.expand(args.body)
+                        local indent_nodes = true
+                        if vim.api.nvim_get_option_value("filetype", { buf = 0 }) == "dart" then
+                            indent_nodes = false
+                        end
+                        require("luasnip").lsp_expand(args.body, {
+                            indent = indent_nodes,
+                        })
+                        -- vim.snippet.expand(args.body)
                     end,
                 },
             })
-
-
-            require('luasnip.loaders.from_vscode').lazy_load()
         end
     },
 
@@ -90,12 +98,27 @@ return {
         },
         config = function()
             local lsp_zero = require('lsp-zero')
+
             require("lspconfig.ui.windows").default_options.border = "rounded"
+
+            local lsp_defaults = require('lspconfig').util.default_config
+
+            -- Add cmp_nvim_lsp capabilities settings to lspconfig
+            -- This should be executed before you configure any language server
+            lsp_defaults.capabilities = vim.tbl_deep_extend(
+                'force',
+                lsp_defaults.capabilities,
+                require('cmp_nvim_lsp').default_capabilities()
+            )
+
+            lsp_defaults.capabilities.textDocument.completion.completionItem.snippetSupport = true
 
             -- lsp_attach is where you enable features that only work
             -- if there is a language server active in the file
-            local lsp_attach = function(client, bufnr)
-                local opts = { buffer = bufnr }
+            vim.api.nvim_create_autocmd('LspAttach', {
+                desc = 'LSP actions',
+                callback = function(event)
+                    local opts = {buffer = event.buf}
 
                 vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
                 vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
@@ -112,19 +135,31 @@ return {
                 vim.keymap.set("n", "<leader>vd", '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
                 vim.keymap.set("n", "[d", '<cmd>lua vim.diagnostic.goto_prev()<cr>', opts)
                 vim.keymap.set("n", "]d", '<cmd>lua vim.diagnostic.goto_next()<cr>', opts)
-            end
 
-            lsp_zero.extend_lspconfig({
-                lsp_attach = lsp_attach,
-                capabilities = require('cmp_nvim_lsp').default_capabilities(),
-                float_border = 'rounded',
+                -- View diagnostics in quickfix window
+                vim.keymap.set("n", "<leader>vq", function()
+                    local diagnostics = vim.diagnostic.get(0)  -- Get diagnostics for the current buffer
+                    local quickfix_list = {}
 
-                sign_text = {
-                    error = '✘',
-                    warn = '▲',
-                    hint = '⚑',
-                    info = '»',
-                },
+                    for _, diag in ipairs(diagnostics) do
+                        table.insert(quickfix_list, {
+                            bufnr = diag.bufnr,
+                            lnum = diag.lnum + 1,  -- Line numbers are 0-indexed, quickfix expects 1-indexed
+                            col = diag.col + 1,    -- Column numbers are 0-indexed, quickfix expects 1-indexed
+                            text = diag.message,
+                            type = diag.severity == vim.diagnostic.severity.ERROR and 'E' or
+                                  diag.severity == vim.diagnostic.severity.WARN and 'W' or
+                                  diag.severity == vim.diagnostic.severity.INFO and 'I' or 'H',  -- Type of diagnostic
+                        })
+                    end
+
+                    -- Set the quickfix list with the gathered diagnostics
+                    vim.fn.setqflist(quickfix_list, 'r')
+
+                    -- Open the quickfix window
+                    vim.cmd('copen')
+                end, { buffer = 0 })
+                end,
             })
 
             require('mason-lspconfig').setup({
@@ -175,15 +210,6 @@ return {
                             end
                         }
                     end,
-                    dcm = function ()
-                        require 'lspconfig'.gopls.setup {
-                            on_attach = function(client, bufnr)
-                                vim.opt.tabstop = 2
-                                vim.opt.softtabstop = 2
-                                vim.opt.shiftwidth = 2
-                            end
-                        }
-                    end
                 }
             })
         end
