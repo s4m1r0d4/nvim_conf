@@ -219,6 +219,13 @@ return {
                                 vim.opt.shiftwidth = 2
                             end
                         }
+                    end,
+                    jdtls = function()
+                        require('lspconfig').jdtls.setup({
+                            on_attach = lsp_attach,
+                            capabilities = require('cmp_nvim_lsp').default_capabilities(),
+                            cmd = { "jdtls" },
+                        })
                     end
                 }
             })
