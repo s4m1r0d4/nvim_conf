@@ -42,11 +42,22 @@ vim.g.netrw_winsize = 25
 vim.o.background = "dark" -- or "light" for light mode
 vim.cmd([[colorscheme gruvbox]])
 
-require('lspconfig.ui.windows').default_options.border = 'single'
+-- require('lspconfig.ui.windows').default_options.border = 'single'
 
 -- Set indentation to 2 spaces only for Dart files
 vim.api.nvim_create_autocmd("FileType", {
     pattern = "dart",
+    callback = function()
+        vim.opt_local.tabstop = 2
+        vim.opt_local.softtabstop = 2
+        vim.opt_local.shiftwidth = 2
+        vim.opt_local.expandtab = true
+    end,
+})
+
+-- Set indentation to 2 spaces only for React Typescript files
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "typescriptreact",
     callback = function()
         vim.opt_local.tabstop = 2
         vim.opt_local.softtabstop = 2
