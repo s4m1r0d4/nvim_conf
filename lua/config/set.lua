@@ -1,5 +1,7 @@
 vim.opt.guicursor = ""
 
+vim.opt.mouse = 'a'
+
 vim.opt.nu = true
 vim.opt.relativenumber = true
 
@@ -43,6 +45,7 @@ vim.o.background = "dark" -- or "light" for light mode
 vim.cmd([[colorscheme gruvbox]])
 
 require('lspconfig.ui.windows').default_options.border = 'single'
+-- vim.opt.winborder = "single"
 
 -- Set indentation to 2 spaces only for Dart files
 vim.api.nvim_create_autocmd("FileType", {

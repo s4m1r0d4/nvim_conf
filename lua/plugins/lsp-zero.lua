@@ -8,7 +8,14 @@ return {
     {
         'williamboman/mason.nvim',
         lazy = false,
-        config = true,
+        -- config = true,
+        config = function ()
+            require('mason').setup({
+                ui = {
+                    border = "rounded"
+                }
+            })
+        end
     },
 
     -- Autocompletion
@@ -121,45 +128,46 @@ return {
                 callback = function(event)
                     local opts = {buffer = event.buf}
 
-                vim.keymap.set('n', 'K', '<cmd>lua vim.lsp.buf.hover()<cr>', opts)
-                vim.keymap.set('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<cr>', opts)
-                vim.keymap.set('n', 'gD', '<cmd>lua vim.lsp.buf.declaration()<cr>', opts)
-                vim.keymap.set('n', 'gi', '<cmd>lua vim.lsp.buf.implementation()<cr>', opts)
-                vim.keymap.set('n', 'go', '<cmd>lua vim.lsp.buf.type_definition()<cr>', opts)
-                vim.keymap.set('n', 'gr', '<cmd>lua vim.lsp.buf.references()<cr>', opts)
-                vim.keymap.set('n', 'gs', '<cmd>lua vim.lsp.buf.signature_help()<cr>', opts)
-                vim.keymap.set('n', '<F2>', '<cmd>lua vim.lsp.buf.rename()<cr>', opts)
-                vim.keymap.set({ 'n', 'x' }, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
-                vim.keymap.set('n', '<F4>', '<cmd>lua vim.lsp.buf.code_action()<cr>', opts)
+                    vim.keymap.set('n', 'K', function() vim.lsp.buf.hover() end, opts)
+                    vim.keymap.set('n', 'gd', function() vim.lsp.buf.definition() end, opts)
+                    vim.keymap.set('n', 'gD', function() vim.lsp.buf.declaration() end, opts)
+                    vim.keymap.set('n', 'gi', function() vim.lsp.buf.implementation() end, opts)
+                    vim.keymap.set('n', 'go', function() vim.lsp.buf.type_definition() end, opts)
+                    vim.keymap.set('n', 'gr', function() vim.lsp.buf.references() end, opts)
+                    vim.keymap.set('n', 'gn', function() vim.lsp.buf.signature_help() end, opts)
+                    vim.keymap.set('n', '<F2>', function() vim.lsp.buf.rename() end, opts)
+                    vim.keymap.set({ 'n', 'x' }, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
+                    vim.keymap.set('n', '<F4>', function() vim.lsp.buf.code_action() end, opts)
 
-                -- Diagnostics
-                vim.keymap.set("n", "<leader>vd", '<cmd>lua vim.diagnostic.open_float()<cr>', opts)
-                vim.keymap.set("n", "[d", '<cmd>lua vim.diagnostic.goto_prev()<cr>', opts)
-                vim.keymap.set("n", "]d", '<cmd>lua vim.diagnostic.goto_next()<cr>', opts)
+                    -- Diagnostics
+                    vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
+                    vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count=-1, float=true}) end, opts)
+                    vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count=1, float=true}) end, opts)
 
-                -- View diagnostics in quickfix window
-                vim.keymap.set("n", "<leader>vq", function()
-                    local diagnostics = vim.diagnostic.get(0)  -- Get diagnostics for the current buffer
-                    local quickfix_list = {}
+                    -- View diagnostics in quickfix window
+                    vim.keymap.set("n", "<leader>vq", function()
+                        local diagnostics = vim.diagnostic.get(0)  -- Get diagnostics for the current buffer
+                        local quickfix_list = {}
 
-                    for _, diag in ipairs(diagnostics) do
-                        table.insert(quickfix_list, {
-                            bufnr = diag.bufnr,
-                            lnum = diag.lnum + 1,  -- Line numbers are 0-indexed, quickfix expects 1-indexed
-                            col = diag.col + 1,    -- Column numbers are 0-indexed, quickfix expects 1-indexed
-                            text = diag.message,
-                            type = diag.severity == vim.diagnostic.severity.ERROR and 'E' or
-                                  diag.severity == vim.diagnostic.severity.WARN and 'W' or
-                                  diag.severity == vim.diagnostic.severity.INFO and 'I' or 'H',  -- Type of diagnostic
-                        })
-                    end
+                        for _, diag in ipairs(diagnostics) do
+                            table.insert(quickfix_list, {
+                                bufnr = diag.bufnr,
+                                lnum = diag.lnum + 1,  -- Line numbers are 0-indexed, quickfix expects 1-indexed
+                                col = diag.col + 1,    -- Column numbers are 0-indexed, quickfix expects 1-indexed
+                                text = diag.message,
+                                type = diag.severity == vim.diagnostic.severity.ERROR and 'E' or
+                                      diag.severity == vim.diagnostic.severity.WARN and 'W' or
+                                      diag.severity == vim.diagnostic.severity.INFO and 'I' or 'H',  -- Type of diagnostic
+                            })
+                        end
 
-                    -- Set the quickfix list with the gathered diagnostics
-                    vim.fn.setqflist(quickfix_list, 'r')
+                        -- Set the quickfix list with the gathered diagnostics
+                        vim.fn.setqflist(quickfix_list, 'r')
 
-                    -- Open the quickfix window
-                    vim.cmd('copen')
-                end, { buffer = 0 })
+                        -- Open the quickfix window
+                        vim.cmd('copen')
+                    end, { buffer = 0 })
+
                 end,
             })
 
@@ -173,26 +181,51 @@ return {
                     end,
                     omnisharp = function()
                         require('lspconfig').omnisharp.setup {
+                            -- The 'cmd' property is an array specifying the command and its arguments.
+                            -- First element is the executable (dotnet).
+                            -- Second element is the path to the OmniSharp.dll.
+                            cmd = { "dotnet", vim.fn.stdpath "data" .. "/mason/packages/omnisharp/libexec/OmniSharp.dll" },
+
                             enable_roslyn_analyzers = true,
                             organize_imports_on_format = false,
                             enable_import_completion = false,
-                            analyze_open_documents_only = false,
-                            filetypes = { "cs", "vb", "razor" }
+                            filetypes = { "cs", "vb", "razor" },
+
+                            settings = {
+                                dotnet = {
+                                    backgroundAnalysis = {
+                                        analyzerDiagnosticsScope = "fullSolution",
+                                        compilerDiagnosticsScope = "fullSolution",
+                                    }
+                                }
+                            }
                         }
                     end,
                     html = function()
                         require('lspconfig').html.setup {
                             cmd = { "vscode-html-language-server", "--stdio" },
-                            filetypes = { "html" },
+                            filetypes = { "html", "htmlangular" },
                             init_options = {
                                 configurationSection = { "html", "css", "javascript" },
                                 embeddedLanguages = {
                                     css = true,
                                     javascript = true
                                 },
-                                provideFormatter = true
+                                provideFormatter = true,
                             },
-                            single_file_support = true
+                            single_file_support = true,
+
+                            settings =  {
+                                format = {
+                                    contentUnformatted = "pre",
+                                    wrapAttributes = {
+                                        desc = "aligned-multiple",
+                                        indentInnerHtml = true,
+                                    }
+                                }
+
+                            }
+
                         }
                     end,
                     gopls = function()

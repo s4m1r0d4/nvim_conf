@@ -36,4 +36,10 @@ require("lazy").setup({
 
   -- don't block UI
   checker = { enabled = false },
+
+  -- border window
+  ui = {
+    border = "rounded"
+  }
+
 })
