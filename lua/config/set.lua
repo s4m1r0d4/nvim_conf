@@ -16,7 +16,7 @@ vim.opt.wrap = false
 
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+-- vim.opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
 vim.opt.undofile = true
 
 vim.opt.hlsearch = false
@@ -56,4 +56,14 @@ vim.api.nvim_create_autocmd("FileType", {
         vim.opt_local.shiftwidth = 2
         vim.opt_local.expandtab = true
     end,
+})
+
+--- NERDTree settings
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "nerdtree",
+  callback = function()
+    -- By simply deleting NERDTree's mapping for 'q' to close the buffer,
+    -- Neovim will correctly recognize the 'q:' sequence again.
+    vim.keymap.del("n", "q", { buffer = true })
+  end,
 })

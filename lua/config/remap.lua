@@ -67,12 +67,47 @@ vim.keymap.set("n", "<A-j>", "<C-w>j")
 vim.keymap.set("n", "<A-k>", "<C-w>k")
 vim.keymap.set("n", "<A-l>", "<C-w>l")
 
-
 -- Duplicate current line bellow moving the cursor to the row bellow and same collumn
 vim.keymap.set({"i", "n"}, "<A-,>", ":t.<CR>")
 
 -- Vim easy align
 vim.keymap.set({"n", "x"}, '<leader>l', ":EasyAlign ")
+
+-- Close current tab
+vim.keymap.set('n', '<leader>wc', ":tabc<CR>")
+
+-- Close tabs to the left of the current tab
+vim.keymap.set('n', '<leader>wkr', function ()
+    local current_tab = vim.fn.tabpagenr()
+    local total_tabs = vim.fn.tabpagenr('$')
+
+    -- Iterate from the last tab down to the tab after the current one
+    for i = total_tabs, current_tab + 1, -1 do
+        vim.cmd('tabclose ' .. i)
+    end
+end)
+
+vim.keymap.set('n', '<leader>wm', ':tabm')
+
+-- Close tabs to the right of the current tab
+vim.keymap.set('n', '<leader>wkl', function ()
+  -- Get the current buffer number
+  local current_bufnr = vim.api.nvim_get_current_buf()
+  local bufs_to_delete = {}
+
+  -- Iterate through all existing buffers
+  for _, bufnr in ipairs(vim.api.nvim_list_bufs()) do
+    -- If a buffer is valid and its number is less than the current one
+    if vim.api.nvim_buf_is_valid(bufnr) and bufnr < current_bufnr then
+      table.insert(bufs_to_delete, bufnr)
+    end
+  end
+
+  -- Delete each buffer found
+  for _, bufnr in ipairs(bufs_to_delete) do
+    vim.cmd('bd ' .. bufnr)
+  end
+end)
 
 ---- Plugin Keymaps ----
 
