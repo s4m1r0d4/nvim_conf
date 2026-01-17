@@ -127,6 +127,9 @@ require('Comment').setup({
     pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
 })
 
+-- Easy Align
+vim.keymap.set({'n', 'x'}, '<leader>l', ":EasyAlign ")
+
 -- go to angular template of correspondig angular component
 vim.keymap.set('n', '<leader>at', function()
     local path = vim.fn.expand('%:p:h')
