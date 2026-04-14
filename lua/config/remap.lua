@@ -123,10 +123,6 @@ vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle)
 -- Vim fugitive
 vim.keymap.set('n', '<leader>gs', vim.cmd.Git)
 
-require('Comment').setup({
-    pre_hook = require('ts_context_commentstring.integrations.comment_nvim').create_pre_hook(),
-})
-
 -- Easy Align
 vim.keymap.set({'n', 'x'}, '<leader>l', ":EasyAlign ")
 

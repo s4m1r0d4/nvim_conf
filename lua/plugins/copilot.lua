@@ -4,6 +4,8 @@ return {
   event = "InsertEnter",
   lazy = true,
 
+  enabled = false,
+
   config = function()
     -- require("copilot").setup({
     --     suggestion = { enabled = false },

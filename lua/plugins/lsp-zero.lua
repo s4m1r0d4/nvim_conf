@@ -9,7 +9,7 @@ return {
         'williamboman/mason.nvim',
         lazy = false,
         -- config = true,
-        config = function ()
+        config = function()
             require('mason').setup({
                 ui = {
                     border = "rounded"
@@ -37,7 +37,7 @@ return {
 
             -- angular template files '*.html' are interpreted as 'htmlangular' instead of 'html'
             require("luasnip").filetype_extend("htmlangular", { "html" })
-            require("luasnip/loaders/from_vscode").load({include = {"html"}})
+            require("luasnip/loaders/from_vscode").load({ include = { "html" } })
             require('luasnip.loaders.from_vscode').lazy_load()
 
             cmp.setup({
@@ -126,14 +126,14 @@ return {
             vim.api.nvim_create_autocmd('LspAttach', {
                 desc = 'LSP actions',
                 callback = function(event)
-                    local opts = {buffer = event.buf}
+                    local opts = { buffer = event.buf }
 
                     vim.keymap.set('n', 'K', function() vim.lsp.buf.hover() end, opts)
                     vim.keymap.set('n', 'gd', function() vim.lsp.buf.definition() end, opts)
                     vim.keymap.set('n', 'gD', function() vim.lsp.buf.declaration() end, opts)
                     vim.keymap.set('n', 'gi', function() vim.lsp.buf.implementation() end, opts)
                     vim.keymap.set('n', 'go', function() vim.lsp.buf.type_definition() end, opts)
-                    vim.keymap.set('n', 'gr', function() vim.lsp.buf.references() end, opts)
+                    vim.keymap.set('n', 'gr', function() require('telescope.builtin').lsp_references() end, opts)
                     vim.keymap.set('n', 'gn', function() vim.lsp.buf.signature_help() end, opts)
                     vim.keymap.set('n', '<F2>', function() vim.lsp.buf.rename() end, opts)
                     vim.keymap.set({ 'n', 'x' }, '<F3>', '<cmd>lua vim.lsp.buf.format({async = true})<cr>', opts)
@@ -141,23 +141,23 @@ return {
 
                     -- Diagnostics
                     vim.keymap.set("n", "<leader>vd", function() vim.diagnostic.open_float() end, opts)
-                    vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count=-1, float=true}) end, opts)
-                    vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count=1, float=true}) end, opts)
+                    vim.keymap.set("n", "[d", function() vim.diagnostic.jump({ count = -1, float = true }) end, opts)
+                    vim.keymap.set("n", "]d", function() vim.diagnostic.jump({ count = 1, float = true }) end, opts)
 
                     -- View diagnostics in quickfix window
                     vim.keymap.set("n", "<leader>vq", function()
-                        local diagnostics = vim.diagnostic.get(0)  -- Get diagnostics for the current buffer
+                        local diagnostics = vim.diagnostic.get(0) -- Get diagnostics for the current buffer
                         local quickfix_list = {}
 
                         for _, diag in ipairs(diagnostics) do
                             table.insert(quickfix_list, {
                                 bufnr = diag.bufnr,
-                                lnum = diag.lnum + 1,  -- Line numbers are 0-indexed, quickfix expects 1-indexed
-                                col = diag.col + 1,    -- Column numbers are 0-indexed, quickfix expects 1-indexed
+                                lnum = diag.lnum + 1, -- Line numbers are 0-indexed, quickfix expects 1-indexed
+                                col = diag.col + 1,   -- Column numbers are 0-indexed, quickfix expects 1-indexed
                                 text = diag.message,
                                 type = diag.severity == vim.diagnostic.severity.ERROR and 'E' or
-                                      diag.severity == vim.diagnostic.severity.WARN and 'W' or
-                                      diag.severity == vim.diagnostic.severity.INFO and 'I' or 'H',  -- Type of diagnostic
+                                    diag.severity == vim.diagnostic.severity.WARN and 'W' or
+                                    diag.severity == vim.diagnostic.severity.INFO and 'I' or 'H',   -- Type of diagnostic
                             })
                         end
 
@@ -167,7 +167,6 @@ return {
                         -- Open the quickfix window
                         vim.cmd('copen')
                     end, { buffer = 0 })
-
                 end,
             })
 
@@ -179,23 +178,56 @@ return {
                     function(server_name)
                         require('lspconfig')[server_name].setup({})
                     end,
+                    angularls = function()
+                        local project_root = vim.fs.dirname(vim.fs.find({ 'package.json' }, { upward = true })[1])
+
+                        -- Path to the local angular service and typescript
+                        local cmd = {
+                            "ngserver",
+                            "--stdio",
+                            "--tsProbeLocations", project_root .. "/node_modules",
+                            "--ngProbeLocations", project_root .. "/node_modules",
+                        }
+
+                        require('lspconfig').angularls.setup({
+                            cmd = cmd,
+                            on_new_config = function(new_config, new_root_dir)
+                                new_config.cmd = {
+                                    "ngserver",
+                                    "--stdio",
+                                    "--tsProbeLocations", new_root_dir .. "/node_modules",
+                                    "--ngProbeLocations", new_root_dir .. "/node_modules",
+                                }
+                            end,
+                        })
+                    end,
                     omnisharp = function()
                         require('lspconfig').omnisharp.setup {
-                            -- The 'cmd' property is an array specifying the command and its arguments.
-                            -- First element is the executable (dotnet).
-                            -- Second element is the path to the OmniSharp.dll.
                             cmd = { "dotnet", vim.fn.stdpath "data" .. "/mason/packages/omnisharp/libexec/OmniSharp.dll" },
-
                             enable_roslyn_analyzers = true,
                             organize_imports_on_format = false,
                             enable_import_completion = false,
                             filetypes = { "cs", "vb", "razor" },
+                            log_level = vim.lsp.log_levels.ERROR,
+
+                            handlers = {
+                                ["textDocument/definition"] = require('omnisharp_extended').handler,
+                            },
 
                             settings = {
                                 dotnet = {
                                     backgroundAnalysis = {
-                                        analyzerDiagnosticsScope = "fullSolution",
-                                        compilerDiagnosticsScope = "fullSolution",
+                                        analyzerDiagnosticsScope = "openFiles",
+                                        compilerDiagnosticsScope = "openFiles",
+                                    },
+                                    sdk = {
+                                        path = vim.fn.exepath("dotnet"),
+                                    },
+                                    roslynExtensionsOptions = {
+                                        enableAnalyzersSupport = true,
+                                    },
+                                    formattingOptions = {
+                                        enableEditorConfigSupport = true,
                                     }
                                 }
                             }
@@ -215,7 +247,7 @@ return {
                             },
                             single_file_support = true,
 
-                            settings =  {
+                            settings = {
                                 format = {
                                     contentUnformatted = "pre",
                                     wrapAttributes = {
@@ -244,7 +276,7 @@ return {
                             end
                         }
                     end,
-                    dcmls = function ()
+                    dcmls = function()
                         require 'lspconfig'.gopls.setup {
                             on_attach = function(client, bufnr)
                                 vim.opt.tabstop = 2
@@ -260,7 +292,7 @@ return {
                             cmd = { "jdtls" },
                         })
                     end,
-                    dartls = function ()
+                    dartls = function()
                         require("lspconfig").dartls.setup({
                             cmd = { "dart", "language-server", "--protocol=lsp" },
                             filetypes = { "dart" },
@@ -281,9 +313,16 @@ return {
                             on_attach = function(client, bufnr)
                             end,
                         })
-                    end
+                    end,
                 }
             })
+        end
+    },
+    {
+        "Hoffs/omnisharp-extended-lsp.nvim",
+        lazy = true,
+        config = function()
+            -- Plugin loads automatically, handler is available via require('omnisharp_extended').handler
         end
     }
 }
